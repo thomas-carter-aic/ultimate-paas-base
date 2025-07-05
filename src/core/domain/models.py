@@ -153,8 +153,8 @@ class ScalingConfiguration:
 class DomainEvent:
     """Base class for all domain events in the system"""
     aggregate_id: UUID                                 # ID of the aggregate that generated the event
+    event_type: EventType                              # Type of the event
     event_id: UUID = field(default_factory=uuid4)     # Unique identifier for the event
-    event_type: EventType = field(init=False)         # Type of the event (set by subclasses)
     timestamp: datetime = field(default_factory=datetime.utcnow)  # When the event occurred
     version: int = field(default=1)                   # Event schema version for evolution
     metadata: Dict[str, Any] = field(default_factory=dict)  # Additional event metadata
@@ -177,12 +177,40 @@ class DomainEvent:
 
 
 @dataclass
-class ApplicationCreatedEvent(DomainEvent):
+class ApplicationCreatedEvent:
     """Event raised when a new application is created"""
+    aggregate_id: UUID
     application_name: str
     user_id: UserId
     resource_requirements: ResourceRequirements
-    event_type: EventType = field(default=EventType.APPLICATION_CREATED, init=False)
+    event_id: UUID = field(default_factory=uuid4)
+    event_type: EventType = field(default=EventType.APPLICATION_CREATED)
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    version: int = field(default=1)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the event to a dictionary for serialization"""
+        return {
+            'event_id': str(self.event_id),
+            'event_type': self.event_type.value,
+            'aggregate_id': str(self.aggregate_id),
+            'timestamp': self.timestamp.isoformat(),
+            'version': self.version,
+            'metadata': self.metadata,
+            'data': self._get_event_data()
+        }
+    
+    def _get_event_data(self) -> Dict[str, Any]:
+        return {
+            'application_name': self.application_name,
+            'user_id': self.user_id.value,
+            'resource_requirements': {
+                'cpu': self.resource_requirements.cpu,
+                'memory': self.resource_requirements.memory,
+                'storage': self.resource_requirements.storage
+            }
+        }
     
     def _get_event_data(self) -> Dict[str, Any]:
         return {
@@ -199,13 +227,38 @@ class ApplicationCreatedEvent(DomainEvent):
 
 
 @dataclass
-class ApplicationScaledEvent(DomainEvent):
+class ApplicationScaledEvent:
     """Event raised when an application is scaled"""
+    aggregate_id: UUID
     previous_instance_count: int
     new_instance_count: int
     scaling_reason: str
+    event_id: UUID = field(default_factory=uuid4)
+    event_type: EventType = field(default=EventType.APPLICATION_SCALED)
+    timestamp: datetime = field(default_factory=datetime.utcnow)
+    version: int = field(default=1)
+    metadata: Dict[str, Any] = field(default_factory=dict)
     ai_prediction_confidence: Optional[float] = None
-    event_type: EventType = field(default=EventType.APPLICATION_SCALED, init=False)
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert the event to a dictionary for serialization"""
+        return {
+            'event_id': str(self.event_id),
+            'event_type': self.event_type.value,
+            'aggregate_id': str(self.aggregate_id),
+            'timestamp': self.timestamp.isoformat(),
+            'version': self.version,
+            'metadata': self.metadata,
+            'data': self._get_event_data()
+        }
+    
+    def _get_event_data(self) -> Dict[str, Any]:
+        return {
+            'previous_instance_count': self.previous_instance_count,
+            'new_instance_count': self.new_instance_count,
+            'scaling_reason': self.scaling_reason,
+            'ai_prediction_confidence': self.ai_prediction_confidence
+        }
     
     def _get_event_data(self) -> Dict[str, Any]:
         return {

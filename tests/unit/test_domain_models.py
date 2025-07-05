@@ -215,9 +215,10 @@ class TestDomainEvents:
     def test_domain_event_creation(self):
         """Test basic DomainEvent creation"""
         aggregate_id = uuid4()
-        event = DomainEvent(aggregate_id=aggregate_id)
+        event = DomainEvent(aggregate_id=aggregate_id, event_type=EventType.APPLICATION_CREATED)
         
         assert event.aggregate_id == aggregate_id
+        assert event.event_type == EventType.APPLICATION_CREATED
         assert isinstance(event.event_id, UUID)
         assert isinstance(event.timestamp, datetime)
         assert event.version == 1
@@ -228,6 +229,7 @@ class TestDomainEvents:
         aggregate_id = uuid4()
         event = DomainEvent(
             aggregate_id=aggregate_id,
+            event_type=EventType.APPLICATION_CREATED,
             metadata={'test': 'value'}
         )
         
@@ -385,7 +387,7 @@ class TestApplicationAggregate:
     def test_application_mark_as_running(self):
         """Test marking application as running after deployment"""
         app = self.create_test_application()
-        app.deploy()
+        app.deploy()  # First deploy to set to DEPLOYING status
         app.mark_events_as_committed()  # Clear previous events
         
         app.mark_as_running()
@@ -401,7 +403,8 @@ class TestApplicationAggregate:
     def test_application_scale_up(self):
         """Test scaling application up"""
         app = self.create_test_application()
-        app.mark_as_running()  # Set to running status
+        app.deploy()  # First deploy to set to DEPLOYING status
+        app.mark_as_running()  # Then mark as running
         app.mark_events_as_committed()  # Clear previous events
         
         app.scale(new_instance_count=5, reason="High CPU usage", ai_confidence=0.9)
@@ -424,6 +427,7 @@ class TestApplicationAggregate:
         """Test scaling application down"""
         app = self.create_test_application()
         app._current_instance_count = 5  # Set current count to 5
+        app.deploy()  # First deploy to set to DEPLOYING status
         app.mark_as_running()
         app.mark_events_as_committed()
         
@@ -460,6 +464,7 @@ class TestApplicationAggregate:
     def test_application_update_resources(self):
         """Test updating application resource requirements"""
         app = self.create_test_application()
+        app.deploy()  # First deploy to set to DEPLOYING status
         app.mark_as_running()
         app.mark_events_as_committed()
         
@@ -492,6 +497,7 @@ class TestApplicationAggregate:
     def test_application_stop(self):
         """Test stopping a running application"""
         app = self.create_test_application()
+        app.deploy()  # First deploy to set to DEPLOYING status
         app.mark_as_running()
         app.mark_events_as_committed()
         
@@ -508,6 +514,7 @@ class TestApplicationAggregate:
     def test_application_mark_as_stopped(self):
         """Test marking application as stopped"""
         app = self.create_test_application()
+        app.deploy()  # First deploy to set to DEPLOYING status
         app.mark_as_running()
         app.stop()
         
