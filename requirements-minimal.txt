@@ -1,0 +1,28 @@
+# Minimal requirements for Python 3.13 compatibility testing
+
+# Core Framework
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+pydantic>=2.5.0
+
+# Async Support
+aiohttp>=3.9.0
+aiofiles>=23.0.0
+
+# AWS SDK (core only)
+boto3>=1.34.0
+botocore>=1.34.0
+
+# Basic utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+click>=8.1.0
+pyyaml>=6.0.0
+python-dotenv>=1.0.0
+
+# HTTP Client
+httpx>=0.25.0
+requests>=2.31.0
+
+# Typing support
+typing-extensions>=4.8.0

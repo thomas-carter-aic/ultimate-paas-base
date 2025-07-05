@@ -152,9 +152,9 @@ class ScalingConfiguration:
 @dataclass
 class DomainEvent:
     """Base class for all domain events in the system"""
+    aggregate_id: UUID                                 # ID of the aggregate that generated the event
     event_id: UUID = field(default_factory=uuid4)     # Unique identifier for the event
     event_type: EventType = field(init=False)         # Type of the event (set by subclasses)
-    aggregate_id: UUID = field(init=True)             # ID of the aggregate that generated the event
     timestamp: datetime = field(default_factory=datetime.utcnow)  # When the event occurred
     version: int = field(default=1)                   # Event schema version for evolution
     metadata: Dict[str, Any] = field(default_factory=dict)  # Additional event metadata
@@ -179,10 +179,10 @@ class DomainEvent:
 @dataclass
 class ApplicationCreatedEvent(DomainEvent):
     """Event raised when a new application is created"""
+    application_name: str
+    user_id: UserId
+    resource_requirements: ResourceRequirements
     event_type: EventType = field(default=EventType.APPLICATION_CREATED, init=False)
-    application_name: str = field(init=True)
-    user_id: UserId = field(init=True)
-    resource_requirements: ResourceRequirements = field(init=True)
     
     def _get_event_data(self) -> Dict[str, Any]:
         return {
@@ -201,11 +201,11 @@ class ApplicationCreatedEvent(DomainEvent):
 @dataclass
 class ApplicationScaledEvent(DomainEvent):
     """Event raised when an application is scaled"""
+    previous_instance_count: int
+    new_instance_count: int
+    scaling_reason: str
+    ai_prediction_confidence: Optional[float] = None
     event_type: EventType = field(default=EventType.APPLICATION_SCALED, init=False)
-    previous_instance_count: int = field(init=True)
-    new_instance_count: int = field(init=True)
-    scaling_reason: str = field(init=True)
-    ai_prediction_confidence: Optional[float] = field(default=None)
     
     def _get_event_data(self) -> Dict[str, Any]:
         return {

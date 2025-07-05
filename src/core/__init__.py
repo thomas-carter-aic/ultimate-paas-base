@@ -13,9 +13,21 @@ Key Components:
 - Plugin system architecture
 """
 
-from .domain import *
-from .application import *
-from .infrastructure import *
+# Import core modules with graceful error handling
+try:
+    from .domain import *
+except ImportError as e:
+    print(f"Warning: Could not import domain module: {e}")
+
+try:
+    from .application import *
+except ImportError as e:
+    print(f"Warning: Could not import application module: {e}")
+
+try:
+    from .infrastructure import *
+except ImportError as e:
+    print(f"Warning: Could not import infrastructure module: {e}")
 
 __version__ = "1.0.0"
 __author__ = "AI-Native PaaS Team"
