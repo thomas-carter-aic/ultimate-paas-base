@@ -24,6 +24,10 @@ def test_core_dependencies():
         import bcrypt
         import httpx
         import yaml
+        import numpy
+        import pandas
+        import sklearn
+        import scipy
         assert True, "Core dependencies imported successfully"
     except ImportError as e:
         pytest.fail(f"Failed to import core dependency: {e}")
@@ -79,6 +83,20 @@ def test_configuration_management():
         assert True, "Configuration management working"
     except Exception as e:
         pytest.fail(f"Configuration management failed: {e}")
+
+
+def test_ai_models_import():
+    """Test that AI models can be imported."""
+    try:
+        from ai.models.scaling_predictor import ScalingPredictor
+        from ai.models.anomaly_detector import AnomalyDetector
+        from ai.models.cost_optimizer import CostOptimizer
+        from ai.models.performance_predictor import PerformancePredictor
+        from ai.models.resource_recommender import ResourceRecommender
+        from ai.service import AIService
+        assert True, "AI models imported successfully"
+    except ImportError as e:
+        pytest.fail(f"Failed to import AI models: {e}")
 
 
 if __name__ == "__main__":
