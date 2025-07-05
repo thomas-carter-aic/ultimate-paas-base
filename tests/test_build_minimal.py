@@ -110,5 +110,16 @@ def test_container_orchestration_import():
         pytest.fail(f"Failed to import container orchestration components: {e}")
 
 
+def test_production_infrastructure_import():
+    """Test that production infrastructure components can be imported."""
+    try:
+        from infrastructure.deployment.infrastructure_manager import InfrastructureManager
+        from infrastructure.deployment.environment_manager import EnvironmentManager
+        from infrastructure.monitoring.monitoring_service import MonitoringService
+        assert True, "Production infrastructure components imported successfully"
+    except ImportError as e:
+        pytest.fail(f"Failed to import production infrastructure components: {e}")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
