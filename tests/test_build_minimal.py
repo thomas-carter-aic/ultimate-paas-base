@@ -99,5 +99,16 @@ def test_ai_models_import():
         pytest.fail(f"Failed to import AI models: {e}")
 
 
+def test_container_orchestration_import():
+    """Test that container orchestration components can be imported."""
+    try:
+        from infrastructure.container.ecs_manager import ECSManager
+        from infrastructure.container.container_service import ContainerService
+        from infrastructure.container.deployment_orchestrator import DeploymentOrchestrator
+        assert True, "Container orchestration components imported successfully"
+    except ImportError as e:
+        pytest.fail(f"Failed to import container orchestration components: {e}")
+
+
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])
