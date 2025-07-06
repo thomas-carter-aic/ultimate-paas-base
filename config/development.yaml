@@ -1,0 +1,212 @@
+# Development Environment Configuration
+# AI-Native PaaS Platform
+
+platform:
+  name: "AI-Native PaaS"
+  version: "1.0.0"
+  environment: "development"
+  debug: true
+  log_level: "DEBUG"
+
+# Database Configuration
+database:
+  url: "postgresql://paas_user:paas_password@localhost:5432/paas_dev"
+  pool_size: 10
+  max_overflow: 20
+  echo: true  # SQL query logging in development
+
+# Redis Configuration
+redis:
+  url: "redis://localhost:6379/0"
+  max_connections: 10
+  decode_responses: true
+
+# AWS Configuration
+aws:
+  region: "us-east-1"
+  profile: "development"
+  mock_mode: true  # Use mocked AWS services for development
+  
+  # ECS Configuration
+  ecs:
+    cluster_name: "paas-dev-cluster"
+    task_definition_family: "paas-dev-app"
+    service_name_prefix: "paas-dev"
+    
+  # DynamoDB Configuration
+  dynamodb:
+    table_prefix: "paas-dev"
+    billing_mode: "PAY_PER_REQUEST"
+    
+  # S3 Configuration
+  s3:
+    bucket_name: "paas-dev-storage"
+    
+  # SageMaker Configuration
+  sagemaker:
+    endpoint_scaling: "paas-dev-scaling-predictor"
+    endpoint_anomaly: "paas-dev-anomaly-detector"
+    endpoint_cost: "paas-dev-cost-optimizer"
+
+# Scaling Configuration
+scaling:
+  strategy: "predictive"
+  min_instances: 1
+  max_instances: 10
+  ai_confidence_threshold: 0.7
+  scale_up_cooldown: 300  # 5 minutes
+  scale_down_cooldown: 600  # 10 minutes
+  
+  # Metrics thresholds
+  cpu_threshold_up: 70.0
+  cpu_threshold_down: 30.0
+  memory_threshold_up: 80.0
+  memory_threshold_down: 40.0
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  metrics_retention_days: 7
+  anomaly_detection_enabled: true
+  alerting_enabled: false  # Disable alerts in development
+  
+  # Metrics collection interval
+  collection_interval_seconds: 60
+  
+  # Dashboard configuration
+  dashboards:
+    enabled: true
+    refresh_interval: 30
+
+# Security Configuration
+security:
+  encryption_at_rest: false  # Disabled for development
+  encryption_in_transit: true
+  rbac_enabled: true
+  audit_logging: true
+  
+  # JWT Configuration
+  jwt:
+    secret_key: "dev-secret-key-change-in-production"
+    algorithm: "HS256"
+    expiration_hours: 24
+    
+  # OAuth Configuration
+  oauth:
+    enabled: false  # Simplified auth for development
+    client_id: "dev-client-id"
+    client_secret: "dev-client-secret"
+
+# Plugin System Configuration
+plugins:
+  enabled: true
+  sandbox_enabled: true
+  max_plugins: 50
+  plugin_timeout_seconds: 30
+  
+  # Resource limits for plugins
+  resource_limits:
+    max_memory_mb: 256
+    max_cpu_time_seconds: 15
+    max_file_descriptors: 50
+    max_processes: 3
+    max_file_size_mb: 50
+
+# AI/ML Configuration
+ai:
+  enabled: true
+  mock_mode: true  # Use mock AI services for development
+  
+  # Model configuration
+  models:
+    scaling_predictor:
+      enabled: true
+      confidence_threshold: 0.7
+      retrain_interval_hours: 24
+      
+    anomaly_detector:
+      enabled: true
+      sensitivity: 0.8
+      window_size_minutes: 15
+      
+    cost_optimizer:
+      enabled: true
+      optimization_interval_hours: 6
+      savings_threshold: 0.1
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 1
+  reload: true  # Auto-reload on code changes
+  
+  # CORS configuration
+  cors:
+    enabled: true
+    allow_origins: ["http://localhost:3000", "http://localhost:8080"]
+    allow_methods: ["GET", "POST", "PUT", "DELETE", "PATCH"]
+    allow_headers: ["*"]
+  
+  # Rate limiting
+  rate_limiting:
+    enabled: false  # Disabled for development
+    requests_per_minute: 1000
+
+# CLI Configuration
+cli:
+  default_environment: "development"
+  auto_completion: true
+  colored_output: true
+  verbose: true
+
+# Deployment Configuration
+deployment:
+  strategy: "rolling"  # Simpler strategy for development
+  health_check_timeout: 60
+  rollback_enabled: true
+  
+  # Blue/Green deployment settings
+  blue_green:
+    enabled: false  # Disabled for development
+    traffic_shift_percentage: 10
+    
+# Notification Configuration
+notifications:
+  enabled: false  # Disabled for development
+  
+  channels:
+    email:
+      enabled: false
+      smtp_server: "localhost"
+      smtp_port: 587
+      
+    slack:
+      enabled: false
+      webhook_url: ""
+      
+    webhook:
+      enabled: false
+      url: ""
+
+# Testing Configuration
+testing:
+  mock_external_services: true
+  test_data_cleanup: true
+  parallel_execution: false
+  
+# Development Tools
+development:
+  hot_reload: true
+  debug_toolbar: true
+  profiling: false
+  
+  # Database seeding
+  seed_data: true
+  sample_applications: 3
+  
+  # Local services
+  local_services:
+    postgres: true
+    redis: true
+    localstack: true  # For AWS service mocking

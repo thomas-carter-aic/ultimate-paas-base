@@ -1,0 +1,363 @@
+# Logging Configuration
+# AI-Native PaaS Platform
+
+version: 1
+disable_existing_loggers: false
+
+formatters:
+  standard:
+    format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+    
+  detailed:
+    format: "%(asctime)s [%(levelname)s] %(name)s:%(lineno)d - %(funcName)s() - %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+    
+  json:
+    format: "%(asctime)s"
+    class: "pythonjsonlogger.jsonlogger.JsonFormatter"
+    
+  structured:
+    format: "%(asctime)s [%(levelname)s] %(name)s - %(message)s - {\"request_id\": \"%(request_id)s\", \"user_id\": \"%(user_id)s\", \"application_id\": \"%(application_id)s\"}"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: standard
+    stream: ext://sys.stdout
+    
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: logs/paas-platform.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    
+  error_file:
+    class: logging.handlers.RotatingFileHandler
+    level: ERROR
+    formatter: detailed
+    filename: logs/paas-errors.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 10
+    
+  audit_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/paas-audit.log
+    maxBytes: 52428800  # 50MB
+    backupCount: 20
+    
+  security_file:
+    class: logging.handlers.RotatingFileHandler
+    level: WARNING
+    formatter: json
+    filename: logs/paas-security.log
+    maxBytes: 52428800  # 50MB
+    backupCount: 30
+    
+  performance_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/paas-performance.log
+    maxBytes: 20971520  # 20MB
+    backupCount: 10
+    
+  ai_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: json
+    filename: logs/paas-ai.log
+    maxBytes: 20971520  # 20MB
+    backupCount: 15
+    
+  plugin_file:
+    class: logging.handlers.RotatingFileHandler
+    level: INFO
+    formatter: detailed
+    filename: logs/paas-plugins.log
+    maxBytes: 10485760  # 10MB
+    backupCount: 5
+    
+  # CloudWatch handler for production
+  cloudwatch:
+    class: watchtower.CloudWatchLogsHandler
+    level: INFO
+    formatter: json
+    log_group: "/aws/paas-platform/application"
+    stream_name: "{hostname}-{strftime:%Y-%m-%d}"
+    
+  # Syslog handler for centralized logging
+  syslog:
+    class: logging.handlers.SysLogHandler
+    level: INFO
+    formatter: structured
+    address: ["localhost", 514]
+    facility: "local0"
+
+loggers:
+  # Root logger
+  "":
+    level: INFO
+    handlers: [console, file, error_file]
+    propagate: false
+    
+  # Core application loggers
+  src.core:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  src.core.domain:
+    level: DEBUG
+    handlers: [console, file]
+    propagate: false
+    
+  src.core.application:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  src.core.infrastructure:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  # Service loggers
+  src.services:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  src.services.deployment:
+    level: INFO
+    handlers: [console, file, audit_file]
+    propagate: false
+    
+  src.services.scaling:
+    level: INFO
+    handlers: [console, file, performance_file]
+    propagate: false
+    
+  # AI/ML loggers
+  src.ai:
+    level: INFO
+    handlers: [console, ai_file]
+    propagate: false
+    
+  src.ai.predictive_scaling:
+    level: INFO
+    handlers: [ai_file, performance_file]
+    propagate: false
+    
+  src.ai.anomaly_detection:
+    level: INFO
+    handlers: [ai_file, security_file]
+    propagate: false
+    
+  src.ai.cost_optimization:
+    level: INFO
+    handlers: [ai_file, performance_file]
+    propagate: false
+    
+  # API loggers
+  src.api:
+    level: INFO
+    handlers: [console, file, audit_file]
+    propagate: false
+    
+  uvicorn:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  uvicorn.access:
+    level: INFO
+    handlers: [audit_file]
+    propagate: false
+    
+  # Plugin system loggers
+  src.plugins:
+    level: INFO
+    handlers: [console, plugin_file]
+    propagate: false
+    
+  src.plugins.manager:
+    level: INFO
+    handlers: [plugin_file, audit_file]
+    propagate: false
+    
+  src.plugins.sandbox:
+    level: WARNING
+    handlers: [plugin_file, security_file]
+    propagate: false
+    
+  # Security loggers
+  src.security:
+    level: WARNING
+    handlers: [console, security_file]
+    propagate: false
+    
+  # Monitoring loggers
+  src.monitoring:
+    level: INFO
+    handlers: [console, performance_file]
+    propagate: false
+    
+  # Infrastructure loggers
+  src.infrastructure:
+    level: INFO
+    handlers: [console, file]
+    propagate: false
+    
+  # AWS service loggers
+  boto3:
+    level: WARNING
+    handlers: [file]
+    propagate: false
+    
+  botocore:
+    level: WARNING
+    handlers: [file]
+    propagate: false
+    
+  # Database loggers
+  sqlalchemy:
+    level: WARNING
+    handlers: [file]
+    propagate: false
+    
+  sqlalchemy.engine:
+    level: INFO
+    handlers: [performance_file]
+    propagate: false
+    
+  # Redis loggers
+  redis:
+    level: WARNING
+    handlers: [file]
+    propagate: false
+    
+  # Third-party library loggers
+  requests:
+    level: WARNING
+    handlers: [file]
+    propagate: false
+    
+  urllib3:
+    level: WARNING
+    handlers: [file]
+    propagate: false
+    
+  # CLI loggers
+  src.cli:
+    level: INFO
+    handlers: [console]
+    propagate: false
+
+# Environment-specific configurations
+environments:
+  development:
+    root_level: DEBUG
+    console_level: DEBUG
+    file_level: DEBUG
+    handlers: [console, file, error_file]
+    
+  staging:
+    root_level: INFO
+    console_level: INFO
+    file_level: INFO
+    handlers: [console, file, error_file, audit_file, security_file]
+    
+  production:
+    root_level: WARNING
+    console_level: ERROR
+    file_level: INFO
+    handlers: [file, error_file, audit_file, security_file, cloudwatch, syslog]
+
+# Log rotation and retention
+rotation:
+  max_file_size_mb: 50
+  backup_count: 10
+  retention_days: 90
+  
+  # Compress old log files
+  compression: true
+  compression_format: "gzip"
+  
+  # Archive old logs to S3
+  archive_to_s3: true
+  s3_bucket: "paas-platform-logs"
+  s3_prefix: "archived-logs/"
+
+# Log analysis and alerting
+analysis:
+  # Error rate monitoring
+  error_rate_threshold: 5.0  # errors per minute
+  error_rate_window_minutes: 5
+  
+  # Performance monitoring
+  slow_query_threshold_ms: 1000
+  high_memory_usage_threshold: 90.0
+  
+  # Security monitoring
+  failed_login_threshold: 10
+  suspicious_activity_patterns:
+    - "multiple_failed_logins"
+    - "privilege_escalation_attempt"
+    - "unusual_api_access_pattern"
+    
+# Structured logging fields
+structured_fields:
+  # Request context
+  request_id: "%(request_id)s"
+  user_id: "%(user_id)s"
+  session_id: "%(session_id)s"
+  
+  # Application context
+  application_id: "%(application_id)s"
+  environment: "%(environment)s"
+  version: "%(version)s"
+  
+  # Performance metrics
+  response_time_ms: "%(response_time_ms)s"
+  memory_usage_mb: "%(memory_usage_mb)s"
+  cpu_usage_percent: "%(cpu_usage_percent)s"
+  
+  # Business metrics
+  feature_flag: "%(feature_flag)s"
+  experiment_id: "%(experiment_id)s"
+  
+# Log sampling for high-volume environments
+sampling:
+  enabled: false  # Enable in production if needed
+  sample_rate: 0.1  # Sample 10% of logs
+  
+  # Always log certain events
+  always_log:
+    - ERROR
+    - CRITICAL
+    - security events
+    - audit events
+    
+# Privacy and compliance
+privacy:
+  # PII scrubbing
+  scrub_pii: true
+  pii_patterns:
+    - email
+    - phone_number
+    - ssn
+    - credit_card
+    
+  # Data retention
+  retention_policy:
+    audit_logs: 2555  # 7 years
+    security_logs: 2555  # 7 years
+    application_logs: 90  # 90 days
+    performance_logs: 30  # 30 days
